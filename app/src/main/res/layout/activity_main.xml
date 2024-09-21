@@ -1,0 +1,99 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <Button
+        android:id="@+id/btnConnect"
+        android:layout_width="379dp"
+        android:layout_height="wrap_content"
+        android:text="Connect to Bluetooth" />
+
+
+    <TextView
+        android:id="@+id/tvData"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="20dp"
+        android:text=""
+        android:textSize="16sp" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="131dp">
+
+        <Button
+            android:id="@+id/btnCleanRecords"
+            android:layout_width="147dp"
+            android:layout_height="61dp"
+            android:layout_marginEnd="16dp"
+            android:text="Clean Records"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.83"
+            app:layout_constraintStart_toEndOf="@+id/btnGetTemperature"
+            app:layout_constraintTop_toBottomOf="@+id/btnSave"
+            app:layout_constraintVertical_bias="0.0" />
+
+        <Button
+            android:id="@+id/btnSave"
+            android:layout_width="144dp"
+            android:layout_height="62dp"
+            android:layout_marginEnd="16dp"
+            android:text="Save Temperature"
+            app:layout_constraintBottom_toTopOf="@+id/btnCleanRecords"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.83"
+            app:layout_constraintStart_toEndOf="@+id/btnShowRecords"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Button
+            android:id="@+id/btnShowRecords"
+            android:layout_width="150dp"
+            android:layout_height="57dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="1dp"
+            android:layout_marginEnd="48dp"
+            android:layout_marginBottom="10dp"
+            android:text="Show Records"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/btnCleanRecords"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/btnGetTemperature" />
+
+        <Button
+            android:id="@+id/btnGetTemperature"
+            android:layout_width="150dp"
+            android:layout_height="63dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="44dp"
+            android:layout_marginBottom="1dp"
+            android:text="Get Temperature"
+            app:layout_constraintBottom_toTopOf="@+id/btnShowRecords"
+            app:layout_constraintEnd_toStartOf="@+id/btnSave"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/constraintLayout"
+        android:layout_width="380dp"
+        android:layout_height="391dp">
+
+        <TextView
+            android:id="@+id/tvData2"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="1.0" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</LinearLayout>
