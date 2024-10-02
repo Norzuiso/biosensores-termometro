@@ -20,6 +20,7 @@ import androidx.core.app.ActivityCompat;
 
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
@@ -159,7 +160,7 @@ public class MainActivity extends AppCompatActivity {
     private void showSavedRecords() {
         List<Temperatures> records = new ArrayList<>();
         StringBuilder recordsstr= new StringBuilder();
-
+        int i =0;
         try {
             FileInputStream fis = openFileInput(FILE_NAME);
             BufferedReader reader = new BufferedReader(new InputStreamReader(fis));
@@ -169,8 +170,9 @@ public class MainActivity extends AppCompatActivity {
                 String[] split = line.split("=");
                 String s = split[1].split("\\|")[0];
                 temp = new Temperatures(split[0], Float.parseFloat(s));
-                recordsstr.append(temp.toStringSave()).append("\n");
+                recordsstr.append(i+"=" +temp.toStringSave()).append("\n");
                 records.add(temp);
+                i++;
             }
 
             reader.close();
@@ -185,6 +187,8 @@ public class MainActivity extends AppCompatActivity {
 
         // Crear el dataset para el gráfico de línea
         LineDataSet dataSet = new LineDataSet(entries, "Temperaturas");
+        dataSet.setValueFormatter(new MyValueFormatter());  // Aplica el formateador
+        dataSet.setValueTextSize(8f);  // Ajusta el tamaño del texto si es necesario
 
         // Asignar el dataset al gráfico
         LineData lineData = new LineData(dataSet);
@@ -198,13 +202,14 @@ public class MainActivity extends AppCompatActivity {
         xAxis.setAxisMinimum(entries.get(0).getX()); // Valor mínimo del eje X
         xAxis.setAxisMaximum(entries.get(entries.size() - 1).getX()); // Valor máximo del eje X
 
-
         // Refrescar el gráfico
         lineChart.invalidate();
         tvData2.setText(recordsstr.toString());
 
     }
-
+    public String getFormattedValue(float value) {
+        return String.format(Locale.ENGLISH, "%.2f", value);
+    }
 
     private void checkBluetoothPermissions() {
         if (!bluetoothAdapter.isEnabled()) {
