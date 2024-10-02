@@ -18,6 +18,13 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
+import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.data.LineData;
+import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.formatter.ValueFormatter;
+
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -26,9 +33,16 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -44,6 +58,7 @@ public class MainActivity extends AppCompatActivity {
     private OutputStream outputStream;
     private InputStream inputStream;
     private Temperatures temperatures;
+    private LineChart lineChart;
 
     private static final String FILE_NAME = "temperature_records.txt";
 
@@ -60,6 +75,7 @@ public class MainActivity extends AppCompatActivity {
         Button btnSave = findViewById(R.id.btnSave);
         Button btnShowRecords = findViewById(R.id.btnShowRecords);
         Button btnCleanRecords = findViewById(R.id.btnCleanRecords);
+        lineChart = findViewById(R.id.lineChart);
 
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
@@ -127,11 +143,22 @@ public class MainActivity extends AppCompatActivity {
         } catch (Exception e) {
             Log.e(TAG, "Error saving temperature", e);
         }
+
+        // Mostrar los registros guardados
         showSavedRecords();
     }
 
+    public static float randFloat(float min, float max) {
+
+        Random rand = new Random();
+
+        return rand.nextFloat() * (max - min) + min;
+
+    }
+
     private void showSavedRecords() {
-        StringBuilder records = new StringBuilder();
+        List<Temperatures> records = new ArrayList<>();
+        StringBuilder recordsstr= new StringBuilder();
 
         try {
             FileInputStream fis = openFileInput(FILE_NAME);
@@ -142,7 +169,8 @@ public class MainActivity extends AppCompatActivity {
                 String[] split = line.split("=");
                 String s = split[1].split("\\|")[0];
                 temp = new Temperatures(split[0], Float.parseFloat(s));
-                records.append(temp.toStringSave()).append("\n");
+                recordsstr.append(temp.toStringSave()).append("\n");
+                records.add(temp);
             }
 
             reader.close();
@@ -150,9 +178,34 @@ public class MainActivity extends AppCompatActivity {
         } catch (Exception e) {
             Log.e(TAG, "Error reading records", e);
         }
+        // Crear una lista de entradas para el gráfico
+        List<Entry> entries = records.stream()
+                .map(t -> new Entry(records.indexOf(t), t.getTempC()))
+                .collect(Collectors.toList());
 
-        tvData2.setText(records.toString());
+        // Crear el dataset para el gráfico de línea
+        LineDataSet dataSet = new LineDataSet(entries, "Temperaturas");
+
+        // Asignar el dataset al gráfico
+        LineData lineData = new LineData(dataSet);
+        lineChart.setData(lineData);
+
+        // Formatear el eje X para que muestre la fecha y la hora
+        XAxis xAxis = lineChart.getXAxis();
+        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+
+        // Asegúrate de que los valores se muestren entre el mínimo y máximo de los datos
+        xAxis.setAxisMinimum(entries.get(0).getX()); // Valor mínimo del eje X
+        xAxis.setAxisMaximum(entries.get(entries.size() - 1).getX()); // Valor máximo del eje X
+
+
+        // Refrescar el gráfico
+        lineChart.invalidate();
+        tvData2.setText(recordsstr.toString());
+
     }
+
+
     private void checkBluetoothPermissions() {
         if (!bluetoothAdapter.isEnabled()) {
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
@@ -204,6 +257,8 @@ public class MainActivity extends AppCompatActivity {
             }
         } else {
             showToast("Device not connected");
+            temperatures = new Temperatures(randFloat(1, 40));
+
         }
     }
 
@@ -216,7 +271,7 @@ public class MainActivity extends AppCompatActivity {
                     try {
                         runOnUiThread(() -> {
                             // Display the float value on the TextView
-                            tvData.setText(String.format("Temperature:\n"+ temperatures.toString()));
+                            tvData.setText(String.format("Temperature:\n" + temperatures.toString()));
                         });
                     } catch (NumberFormatException e) {
                         runOnUiThread(new Runnable() {
@@ -243,7 +298,7 @@ public class MainActivity extends AppCompatActivity {
         bytes = inputStream.read(buffer);
         String incomingMessage = new String(buffer, 0, bytes); // Remove extra spaces and new lines
         String firstPart = incomingMessage.substring(0, 2);
-        String secondPart = incomingMessage.substring(2,4);
+        String secondPart = incomingMessage.substring(2, 4);
         String temperatureString = firstPart + "." + secondPart;
         float temperatureFromBt = Float.parseFloat(temperatureString);
         temperatures = new Temperatures(temperatureFromBt);
